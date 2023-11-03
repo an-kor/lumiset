@@ -1,0 +1,7 @@
+.env
+run.bat
+composer.lock
+package-lock.json
+
+# Ignore JetBrains IDEs related files
+.idea/

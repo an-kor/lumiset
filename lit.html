@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body {
+            background-color: #111;
+            color: #fff;
+        }
+    </style>
+    <script type="module">
+        import Lumiset from "./js/lumiset/index.js";
+        import {LitElement, html} from "https://cdn.jsdelivr.net/gh/lit/dist@3/core/lit-core.min.js";
+        let counterfort = Lumiset({
+            initialState:{
+                version: "1.0.0",
+                todos: [
+                    { id: 0, text: "Do laundry" },
+                    { id: 1, text: "Buy groceries" }
+                ],
+            },
+            initialSchema: {
+                version: "string",
+                todos: [{ id: "number", text: "string" }],
+                item: {
+                    id: "number",
+                    text: "string"
+                }
+            }
+        });
+        window.store = counterfort.getStore();
+        window.state = store.getState();
+
+
+        store.addMiddleware('todos', 'ADD', (change) => {
+            console.log('Middleware for todos ADD:', change);
+            if (change.value.id === 2) {
+                return false;
+            }
+        });
+
+        class BaseElement extends LitElement {
+            constructor() {
+                super();
+                this.unsubscribe = null;
+
+                // Subscribe to store changes for all relevant paths
+                this.setupStoreSubscriptions();
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+                this.updateFromStore();
+            }
+
+            disconnectedCallback() {
+                super.disconnectedCallback();
+                if (this.unsubscribe) {
+                    this.unsubscribe();
+                }
+            }
+
+            // Subscribe to store paths based on the attributes starting with ':'
+            setupStoreSubscriptions() {
+                const watchedPaths = [];
+                for (const attr of this.attributes) {
+                    if (attr.name.startsWith(':')) {
+                        const path = attr.value;
+                        watchedPaths.push(path);
+                    }
+                }
+                this.unsubscribe = window.store.subscribe(
+                    (state, changes) => this.updateFromStore(state, changes),
+                    watchedPaths
+                );
+            }
+
+            // Update properties from the store based on attributes starting with ':'
+            updateFromStore(state, changes) {
+                for (const attr of this.attributes) {
+                    if (attr.name.startsWith(':')) {
+                        const propName = attr.name.slice(1);
+                        const path = attr.value;
+                        this[propName] = window.store.getPathValue(path);
+                        this.requestUpdate();
+                    }
+                }
+            }
+        }
+
+
+
+        export class MyElement extends BaseElement {
+            static properties = {
+                version: {type: String},
+                text: {type: String},
+            };
+
+            constructor() {
+                super();
+                this.version = store.getState().version;
+            }
+
+            render() {
+                try {
+                    return html`
+                        <p>version: ${this.version}</p>
+                        <p>text: ${this.text}</p>
+                        <p>todos:
+                                ${this.todos.map((todo) => {
+                                    return html`<li>${todo?.text}</li>`;
+                                }
+                            )}
+                        </p>
+                        `;
+                } catch (e) {
+                    console.error(e);
+                    return html`<p>error</p>`;
+                }
+            }
+        }
+        customElements.define('my-element', MyElement);
+
+    </script>
+</head>
+<body>
+    <my-element :version="version" :text="todos.1.text" :todos="todos"></my-element>
+
+</body>
+</html>
