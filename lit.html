@@ -4,128 +4,142 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <style>
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
         body {
             background-color: #111;
             color: #fff;
+            display:flex;
         }
     </style>
     <script type="module">
-        import Lumiset from "./js/lumiset/index.js";
-        import {LitElement, html} from "https://cdn.jsdelivr.net/gh/lit/dist@3/core/lit-core.min.js";
-        let counterfort = Lumiset({
-            initialState:{
-                version: "1.0.0",
-                todos: [
-                    { id: 0, text: "Do laundry" },
-                    { id: 1, text: "Buy groceries" }
-                ],
-            },
-            initialSchema: {
-                version: "string",
-                todos: [{ id: "number", text: "string" }],
-                item: {
-                    id: "number",
-                    text: "string"
+    import Lumiset from "./lib/lumiset/index.js";
+
+    let App = Lumiset({
+        initialState:{
+            version: "1.0.0",
+            todos: [
+                { id: 0, text: "Do laundry" },
+                { id: 1, text: "Buy groceries" }
+            ],
+        },
+        initialSchema: {
+            version: "string",
+            todos: [{ id: "number", text: "string" }],
+            item: {
+                id: "number",
+                text: "string"
+            }
+        },
+        middlewares: {
+            'auth': {
+                path: "currentRoute",
+                handler: async (value) => {
+                    if (value === "test/12") {
+                        return false;
+                    }
+                    return true;
+                },
+                onReject: () => {
+                    App.getRouter().navigate('quit')
                 }
             }
-        });
-        window.store = counterfort.getStore();
-        window.state = store.getState();
+        }
+    });
 
+    window.state = App.getStore().getState()
 
-        store.addMiddleware('todos', 'ADD', (change) => {
-            console.log('Middleware for todos ADD:', change);
-            if (change.value.id === 2) {
+    App.getStore().addMiddleware("auth2", {
+        path: "currentRoute",
+        handler: (value) => {
+            if (value === "quit") {
                 return false;
             }
-        });
-
-        class BaseElement extends LitElement {
-            constructor() {
-                super();
-                this.unsubscribe = null;
-
-                // Subscribe to store changes for all relevant paths
-                this.setupStoreSubscriptions();
-            }
-
-            connectedCallback() {
-                super.connectedCallback();
-                this.updateFromStore();
-            }
-
-            disconnectedCallback() {
-                super.disconnectedCallback();
-                if (this.unsubscribe) {
-                    this.unsubscribe();
-                }
-            }
-
-            // Subscribe to store paths based on the attributes starting with ':'
-            setupStoreSubscriptions() {
-                const watchedPaths = [];
-                for (const attr of this.attributes) {
-                    if (attr.name.startsWith(':')) {
-                        const path = attr.value;
-                        watchedPaths.push(path);
-                    }
-                }
-                this.unsubscribe = window.store.subscribe(
-                    (state, changes) => this.updateFromStore(state, changes),
-                    watchedPaths
-                );
-            }
-
-            // Update properties from the store based on attributes starting with ':'
-            updateFromStore(state, changes) {
-                for (const attr of this.attributes) {
-                    if (attr.name.startsWith(':')) {
-                        const propName = attr.name.slice(1);
-                        const path = attr.value;
-                        this[propName] = window.store.getPathValue(path);
-                        this.requestUpdate();
-                    }
-                }
-            }
+            return true;
+        },
+        onReject: () => {
+            App.getRouter().navigate('quit2')
         }
-
-
-
-        export class MyElement extends BaseElement {
-            static properties = {
-                version: {type: String},
-                text: {type: String},
-            };
-
-            constructor() {
-                super();
-                this.version = store.getState().version;
-            }
-
-            render() {
-                try {
-                    return html`
-                        <p>version: ${this.version}</p>
-                        <p>text: ${this.text}</p>
-                        <p>todos:
-                                ${this.todos.map((todo) => {
-                                    return html`<li>${todo?.text}</li>`;
-                                }
-                            )}
-                        </p>
-                        `;
-                } catch (e) {
-                    console.error(e);
-                    return html`<p>error</p>`;
+    })
+    export class MyElement extends App.BaseElement {
+        renderElement() {
+            return App.Lit.html`
+                    <p>version: ${this.version}</p>
+                    <p>text: ${this.text}</p>
+                    <p>todos:
+                        ${this.todos.map((todo) => {
+                    return App.Lit.html`<li>${todo?.text}</li>`;
                 }
-            }
+            )}
+                    </p>
+                `;
         }
-        customElements.define('my-element', MyElement);
+    }
+    customElements.define('lumi-element', MyElement);
 
+    export class TextElement extends App.BaseElement {
+        renderElement() {
+            return App.Lit.html`<span>${this.value}</span>`;
+        }
+    }
+    customElements.define('lumi-text', TextElement);
+
+
+    export class LayoutBlank extends App.BaseElement {
+        static styles = App.Lit.css`
+        :host {
+              display: flex;
+              width: 100%;
+              flex-grow: 1;
+         }
+            .wrapper {
+              flex-grow: 1;
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              align-items: center;
+            }
+          .content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+          }
+        `;
+        renderElement() {
+            return App.Lit.html`
+        <div class="wrapper">
+            <div class="content">
+                <slot></slot>
+            </div>
+        </div>
+
+`;
+        }
+    }
+    customElements.define('app-layout-blank', LayoutBlank);
     </script>
 </head>
 <body>
-    <my-element :version="version" :text="todos.1.text" :todos="todos"></my-element>
-
+<template is="lumi-app">
+    <!--lumi-element :version="version" :text="todos.1.text" :todos="todos"></lumi-element>
+    <lumi-route path="login/*">
+        <div>123</div>
+        <lumi-route path="login/password/*">
+            <div>password</div>
+        </lumi-route>
+    </lumi-route>
+    <lumi-route path="еуые/*">
+        <div>123</div>
+    </lumi-route-->
+    <app-layout-blank>
+        text
+    </app-layout-blank>
+</template>
 </body>
 </html>
