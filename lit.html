@@ -13,14 +13,18 @@
         body {
             background-color: #111;
             color: #fff;
-            display:flex;
         }
     </style>
     <script type="module">
     import Lumiset from "./lib/lumiset/index.js";
+    import components from "./src/components/index.js";
+    import layouts from "./src/layouts/index.js";
+    import themes from "./src/themes/index.js";
 
     let App = Lumiset({
         initialState:{
+            isAuthorized: false,
+            authorizedRoutes: ["dashboard", "users/:id"],
             version: "1.0.0",
             todos: [
                 { id: 0, text: "Do laundry" },
@@ -28,6 +32,7 @@
             ],
         },
         initialSchema: {
+            authorizedRoutes: ["string"],
             version: "string",
             todos: [{ id: "number", text: "string" }],
             item: {
@@ -38,20 +43,25 @@
         middlewares: {
             'auth': {
                 path: "currentRoute",
-                handler: async (value) => {
-                    if (value === "test/12") {
+                handler: async (value, state) => {
+                    if (!state.isAuthorized && state.authorizedRoutes.includes(value)) {
                         return false;
                     }
                     return true;
                 },
                 onReject: () => {
-                    App.getRouter().navigate('quit')
+                    App.getRouter().navigate('login')
                 }
             }
-        }
+        },
+        customComponents: {...components,...layouts},
+        currentTheme: 'default',
+        themes
     });
 
     window.state = App.getStore().getState()
+
+    window.App = App;
 
     App.getStore().addMiddleware("auth2", {
         path: "currentRoute",
@@ -65,64 +75,6 @@
             App.getRouter().navigate('quit2')
         }
     })
-    export class MyElement extends App.BaseElement {
-        renderElement() {
-            return App.Lit.html`
-                    <p>version: ${this.version}</p>
-                    <p>text: ${this.text}</p>
-                    <p>todos:
-                        ${this.todos.map((todo) => {
-                    return App.Lit.html`<li>${todo?.text}</li>`;
-                }
-            )}
-                    </p>
-                `;
-        }
-    }
-    customElements.define('lumi-element', MyElement);
-
-    export class TextElement extends App.BaseElement {
-        renderElement() {
-            return App.Lit.html`<span>${this.value}</span>`;
-        }
-    }
-    customElements.define('lumi-text', TextElement);
-
-
-    export class LayoutBlank extends App.BaseElement {
-        static styles = App.Lit.css`
-        :host {
-              display: flex;
-              width: 100%;
-              flex-grow: 1;
-         }
-            .wrapper {
-              flex-grow: 1;
-              display: flex;
-              flex-direction: column;
-              justify-content: center;
-              align-items: center;
-            }
-          .content {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-          }
-        `;
-        renderElement() {
-            return App.Lit.html`
-        <div class="wrapper">
-            <div class="content">
-                <slot></slot>
-            </div>
-        </div>
-
-`;
-        }
-    }
-    customElements.define('app-layout-blank', LayoutBlank);
     </script>
 </head>
 <body>
@@ -137,8 +89,21 @@
     <lumi-route path="еуые/*">
         <div>123</div>
     </lumi-route-->
+    <!--lumi-route path="login/*" :hidden="isAuthorized">
+        <app-layout-blank>
+            login
+        </app-layout-blank>
+    </lumi-route>
+    <lumi-route path="*" :hidden="!isAuthorized">
+        <app-layout-blank>
+                dashboard
+        </app-layout-blank>
+    </lumi-route-->
+
+    <lumi-test :value="version"></lumi-test>
+    <lumi-element :version="version" :text="todos.1.text" :todos="todos"></lumi-element>
     <app-layout-blank>
-        text
+        <lumi-test :value="version"></lumi-test>
     </app-layout-blank>
 </template>
 </body>
