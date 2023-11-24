@@ -79,32 +79,12 @@
 </head>
 <body>
 <template is="lumi-app">
-    <!--lumi-element :version="version" :text="todos.1.text" :todos="todos"></lumi-element>
-    <lumi-route path="login/*">
-        <div>123</div>
-        <lumi-route path="login/password/*">
-            <div>password</div>
-        </lumi-route>
-    </lumi-route>
-    <lumi-route path="еуые/*">
-        <div>123</div>
-    </lumi-route-->
-    <!--lumi-route path="login/*" :hidden="isAuthorized">
-        <app-layout-blank>
-            login
-        </app-layout-blank>
-    </lumi-route>
-    <lumi-route path="*" :hidden="!isAuthorized">
-        <app-layout-blank>
-                dashboard
-        </app-layout-blank>
-    </lumi-route-->
-
-    <lumi-test :value="version"></lumi-test>
-    <lumi-element :version="version" :text="todos.1.text" :todos="todos"></lumi-element>
-    <app-layout-blank>
-        <lumi-test :value="version"></lumi-test>
-    </app-layout-blank>
+    <lumi-grid  scale={0.5}>
+        <lumi-grid-item sm="2">1</lumi-grid-item>
+        <lumi-grid-item md="0">2</lumi-grid-item>
+        <lumi-grid-item>3</lumi-grid-item>
+        <lumi-grid-item md="12">4</lumi-grid-item>
+    </lumi-grid>
 </template>
 </body>
 </html>

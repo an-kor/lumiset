@@ -1,17 +1,14 @@
 export default (App) => {
     return class extends App.BaseElement {
-        static elementName = 'lumi-element';
+        static styles = App.Lit.css`
+            span {
+              color: var(--mainColor);
+            }
+        `;
+
+        static elementName = 'lumi-text';
         renderElement() {
-            return App.Lit.html`
-                    <p>version: ${this.version}</p>
-                    <p>text: ${this.text}</p>
-                    <p>todos:
-                        ${this.todos.map((todo) => {
-                    return App.Lit.html`<li>${todo?.text}</li>`;
-                }
-            )}
-                    </p>
-                `;
+            return App.Lit.html`<span>Test: ${this.value}</span>`;
         }
     }
 };
