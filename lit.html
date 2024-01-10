@@ -11,8 +11,13 @@
             padding: 0;
         }
         body {
-            background-color: #111;
-            color: #fff;
+        }
+
+        .buttons-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin:30px;
         }
     </style>
     <script type="module">
@@ -20,6 +25,7 @@
     import components from "./src/components/index.js";
     import layouts from "./src/layouts/index.js";
     import themes from "./src/themes/index.js";
+    import controllers from "./src/controllers/index.js";
 
     let App = Lumiset({
         initialState:{
@@ -56,6 +62,7 @@
         },
         customComponents: {...components,...layouts},
         currentTheme: 'default',
+        controllers,
         themes
     });
 
@@ -79,11 +86,126 @@
 </head>
 <body>
 <template is="lumi-app">
-    <lumi-grid  scale={0.5}>
-        <lumi-grid-item sm="2">1</lumi-grid-item>
-        <lumi-grid-item md="0">2</lumi-grid-item>
-        <lumi-grid-item>3</lumi-grid-item>
-        <lumi-grid-item md="12">4</lumi-grid-item>
+    <lumi-button type="primary" mb="4">Primary</lumi-button>
+    <lumi-text small mb="0.5">this.label</lumi-text>
+    <div class="buttons-container">
+        <lumi-choicebox
+                direction="row"
+                label="Choicebox with label"
+                value="Disabled"
+        >
+            <lumi-choicebox-item
+                    description="Free for two weeks"
+                    title="Pro Trial"
+                    value="trial"
+            ></lumi-choicebox-item>
+            <lumi-choicebox-item
+                    description="Get started now"
+                    title="Pro"
+                    value="pro"
+            ></lumi-choicebox-item>
+            <lumi-choicebox-item
+                    disabled
+                    description="Disabled"
+                    title="Disabled"
+                    value="Disabled"
+            ></lumi-choicebox-item>
+        </lumi-choicebox>
+
+        <lumi-choicebox
+                id="choicebox2"
+                multiple
+                direction="row"
+                value="trial, pro"
+        >
+            <lumi-choicebox-item
+                    description="Free for two weeks"
+                    title="Pro Trial"
+                    value="trial"
+            ></lumi-choicebox-item>
+            <lumi-choicebox-item
+                    description="Get started now"
+                    title="Pro"
+                    value="pro"
+            ></lumi-choicebox-item>
+            <lumi-choicebox-item
+                    disabled
+                    description="Disabled"
+                    title="Disabled"
+                    value="disabled"
+            ></lumi-choicebox-item>
+        </lumi-choicebox>
+    </div>
+    <div class="buttons-container">
+        <lumi-checkbox label="Test"></lumi-checkbox>
+        <lumi-checkbox checked label="Test checked"></lumi-checkbox>
+    </div>
+    <div class="buttons-container">
+        <lumi-capacity value="15" limit="100" color="var(--lumi-blue)"></lumi-capacity>
+    </div>
+    <div class="buttons-container">
+        <lumi-button>Default</lumi-button>
+
+        <lumi-stack>
+            <lumi-button size="small">Small</lumi-button>
+            <lumi-button size="medium">Medium</lumi-button>
+            <lumi-button size="large">Large</lumi-button>
+        </lumi-stack>
+
+        <lumi-stack center padding="2">
+            <lumi-button size="small" icon="bar-chart-2"></lumi-button>
+            <lumi-button size="medium" icon="box"></lumi-button>
+            <lumi-button shape="rounded" size="large" prefix="box">Rounded</lumi-button>
+        </lumi-stack>
+
+        <lumi-button type="primary" mb="4">Primary</lumi-button>
+        <lumi-button type="secondary">Secondary</lumi-button>
+        <lumi-button type="success">Success</lumi-button>
+        <lumi-button type="warning">Warning</lumi-button>
+        <lumi-button type="error">Error</lumi-button>
+
+        <lumi-button shape="normal">Normal</lumi-button>
+        <lumi-button shape="rounded">Rounded</lumi-button>
+
+
+        <lumi-button background="yellow">Red</lumi-button>
+
+        <lumi-button fixedWidth="100" prefix="check">Prefix Icon</lumi-button>
+        <lumi-button suffix="check">Suffix Icon</lumi-button>
+
+        <lumi-button loading>Loading...</lumi-button>
+
+        <lumi-button disabled>Disabled</lumi-button>
+
+        <lumi-button custom-color="#ff00ff">Custom Color</lumi-button>
+    </div>
+    <div>
+        <lumi-breadcrumbs>
+            <lumi-breadcrumb-item href="/item1">Item 1</lumi-breadcrumb-item>
+            <lumi-breadcrumb-item href="/item2">Item 2</lumi-breadcrumb-item>
+            <lumi-breadcrumb-item active>Item 3</lumi-breadcrumb-item>
+            <lumi-breadcrumb-item disabled>Disabled</lumi-breadcrumb-item>
+        </lumi-breadcrumbs>
+
+    </div>
+    <div>
+        <lumi-breadcrumbs type="menu">
+            <lumi-breadcrumb-item href="/item1">Item 1</lumi-breadcrumb-item>
+            <lumi-breadcrumb-item href="/item2">Item 2</lumi-breadcrumb-item>
+            <lumi-breadcrumb-item active>Item 3</lumi-breadcrumb-item>
+            <lumi-breadcrumb-item disabled>Disabled</lumi-breadcrumb-item>
+        </lumi-breadcrumbs>
+
+    </div>
+    <lumi-grid>
+        <lumi-grid-item sm="2">
+            <lumi-badge mr="1" text="New" color="success" size="medium"></lumi-badge>
+            <lumi-badge text="Sale" icon="airplay" size="small" color="violet"></lumi-badge>
+        </lumi-grid-item>
+        <lumi-grid-item sm="8" row>
+            <lumi-avatar icon="bluetooth" badge="1" badgeColor="success"></lumi-avatar>
+        </lumi-grid-item>
+
     </lumi-grid>
 </template>
 </body>

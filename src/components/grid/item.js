@@ -2,7 +2,7 @@ export default (App) => {
     const getItemLayout = (val) => {
         const display = val === 0 ? 'display: none;' : 'display: flex;';
         if (typeof val === 'number') {
-            const width = (100 / App.utils.getThemeVariable('columns')) * val;
+            const width = (100 / App.utils.getThemeVariable('lumi-columns')) * val;
             const ratio = width > 100 ? '100%' : width < 0 ? '0' : `${width}%`;
             return {
                 grow: 0,
@@ -30,40 +30,30 @@ export default (App) => {
             };
         }
         getComputedStyles() {
-            const currentBreakpoint = App.utils.getCurrentBreakpoint();
-            const breakpointsOrder = ['xs', 'sm', 'md', 'lg', 'xl']; // Breakpoints in order of size
-            let activeBreakpointValue;
-
-            for (let i = breakpointsOrder.indexOf(currentBreakpoint); i >= 0; i--) {
-                const bp = breakpointsOrder[i];
-                if (this[bp] !== undefined) {
-                    activeBreakpointValue = this[bp];
-                    break;
-                }
-            }
-            if (typeof (activeBreakpointValue) !== 'undefined') {
-                return getItemLayout(activeBreakpointValue);
+            const breakpointValue = App.utils.getBreakpointByValue(this);
+            if (breakpointValue) {
+                return getItemLayout(breakpointValue);
             }
             return { grow: 1, display: 'display: flex;', width: '100%', basis: '0' };
         }
 
-        static styles = App.Lit.css`
-        .grid-item {
-            box-sizing: border-box;
-            width: 100%;
-            padding: 0;
-            margin: 0;
+        static get styles() {
+            return App.BaseElement.extendStyles`
+.grid-item {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+`;
         }
-        `;
 
         updateStyle() {
             const styles = this.getComputedStyles();
-            this.style = `
-            flex-grow: ${styles.grow}; ${styles.display}; width: ${styles.width}; flex-basis: ${styles.basis};
-            `
+            this.style = `flex-grow: ${styles.grow}; ${styles.display}; width: ${styles.width}; flex-basis: ${styles.basis};`
         }
 
-        updated(changedProperties) {
+        onChanged(changedProperties) {
             this.updateStyle()
         }
 
